@@ -846,16 +846,79 @@ body.light-theme .app-container {
     background: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f1f5f9 60%, #f8fafc 100%);
 }
 
+body.light-theme .app-header {
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .logo-text h1 {
+    background: linear-gradient(to right, #0f172a, #334155);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .panel-left {
+    background: rgba(255, 255, 255, 0.45);
+    border-right-color: rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .panel-right {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+body.light-theme .feed-toolbar {
+    background: rgba(255, 255, 255, 0.6);
+    border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .search-box {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .search-box input {
+    color: #0f172a;
+}
+
+body.light-theme .pill {
+    background: rgba(0, 0, 0, 0.03);
+    color: #475569;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .pill:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #0f172a;
+}
+
+body.light-theme .pill.active {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0284c7;
+    border-color: rgba(14, 165, 233, 0.3);
+}
+
+body.light-theme .pill-count {
+    background: rgba(0, 0, 0, 0.06);
+    color: #64748b;
+}
+
+body.light-theme .pill.active .pill-count {
+    background: rgba(14, 165, 233, 0.2);
+    color: #0284c7;
+}
+
 body.light-theme .note-card {
-    background: rgba(255, 255, 255, 0.5);
+    background: #ffffff;
     border-color: rgba(15, 23, 42, 0.06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 body.light-theme .note-card:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: #ffffff;
     border-color: rgba(15, 23, 42, 0.12);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 body.light-theme .note-card.active {
-    background: rgba(14, 165, 233, 0.06);
+    background: rgba(14, 165, 233, 0.05);
     border-color: var(--color-primary);
 }
 
@@ -865,6 +928,9 @@ body.light-theme .detail-body p {
 body.light-theme .detail-body code {
     background: rgba(15, 23, 42, 0.05);
     color: #0369a1;
+}
+body.light-theme .detail-body h3 {
+    color: #0284c7;
 }
 
 body.light-theme .x-post-container {
@@ -883,14 +949,25 @@ body.light-theme .shimmer-card {
     background-size: 200% 100%;
 }
 
-/* Card Copy Button */
+/* Search Term Highlighting */
+mark.highlight {
+    background: rgba(245, 158, 11, 0.25);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+}
+body.light-theme mark.highlight {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+/* Card Action Buttons */
 .note-card-actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.25rem;
 }
 
-.card-copy-btn {
+.card-copy-btn, .card-share-btn {
     background: none;
     border: none;
     color: var(--text-muted);
@@ -901,19 +978,22 @@ body.light-theme .shimmer-card {
     align-items: center;
     justify-content: center;
     transition: var(--transition-fast);
-    opacity: 0.5;
+    opacity: 0.4;
 }
-.note-card:hover .card-copy-btn {
+.note-card:hover .card-copy-btn,
+.note-card:hover .card-share-btn {
     opacity: 1;
 }
-.card-copy-btn:hover {
+.card-copy-btn:hover, .card-share-btn:hover {
     color: var(--color-primary);
     background: rgba(255, 255, 255, 0.1);
 }
-body.light-theme .card-copy-btn:hover {
+body.light-theme .card-copy-btn:hover,
+body.light-theme .card-share-btn:hover {
     background: rgba(0, 0, 0, 0.06);
 }
-.card-copy-btn svg {
+.card-copy-btn svg, .card-share-btn svg {
     pointer-events: none;
 }
+
 

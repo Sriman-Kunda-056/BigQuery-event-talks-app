@@ -85,6 +85,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     }
 
+    // Helper to get Category Icon
+    function getTypeIcon(type) {
+        switch (type.toLowerCase()) {
+            case 'feature': return '🚀';
+            case 'change': return '🔧';
+            case 'deprecation': return '⚠️';
+            default: return '📝';
+        }
+    }
+
+    // Helper for Search Keyword Highlighting
+    function highlightQuery(text, query) {
+        if (!query) return text;
+        const escaped = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`(${escaped})`, 'gi');
+        return text.replace(regex, '<mark class="highlight">$1</mark>');
+    }
+
     // Load Release Notes from API
     async function loadFeed() {
         if (state.isLoading) return;
@@ -106,14 +124,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Show connection status
                 elements.connectionBadge.classList.remove('hidden');
+                const formattedTime = data.cache_time ? ` (${data.cache_time})` : '';
+                
                 if (data.cached) {
-                    elements.connectionBadge.textContent = "Cached Feed";
+                    elements.connectionBadge.textContent = `Cached${formattedTime}`;
                     elements.connectionBadge.className = "badge badge-success";
                     elements.connectionBadge.style.backgroundColor = "rgba(245, 158, 11, 0.15)";
                     elements.connectionBadge.style.color = "#f59e0b";
                     showToast("Feed loaded from local cache (offline).", "info");
                 } else {
-                    elements.connectionBadge.textContent = "Live Feed";
+                    elements.connectionBadge.textContent = `Live Feed`;
                     elements.connectionBadge.className = "badge badge-success";
                     elements.connectionBadge.style.backgroundColor = "rgba(16, 185, 129, 0.15)";
                     elements.connectionBadge.style.color = "#10b981";
@@ -221,6 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 excerpt = excerpt.substring(0, 115) + '...';
             }
             
+            // Apply search term highlighting to card body text
+            const highlightedExcerpt = highlightQuery(excerpt, state.searchQuery);
+            const icon = getTypeIcon(update.type);
+            
             card.innerHTML = `
                 <div class="note-card-header">
                     <span class="note-card-date">${update.date}</span>
@@ -231,21 +255,25 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
                         </button>
-                        <span class="type-badge ${['feature', 'change', 'deprecation'].includes(typeClass) ? typeClass : 'general'}">${update.type}</span>
+                        <button class="card-share-btn" title="Quick tweet on X">
+                            <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                            </svg>
+                        </button>
+                        <span class="type-badge ${['feature', 'change', 'deprecation'].includes(typeClass) ? typeClass : 'general'}">${icon} ${update.type}</span>
                     </div>
                 </div>
-                <div class="note-card-excerpt">${excerpt}</div>
+                <div class="note-card-excerpt">${highlightedExcerpt}</div>
             `;
             
-            // Event listener for copying card content
+            // Copy Card Button
             const copyBtn = card.querySelector('.card-copy-btn');
             copyBtn.addEventListener('click', async (e) => {
-                e.stopPropagation(); // Prevent selecting the card
+                e.stopPropagation();
                 try {
                     await navigator.clipboard.writeText(update.plain_text);
                     showToast("Copied card text!", "success");
                 } catch (err) {
-                    // Fallback
                     const input = document.createElement('textarea');
                     input.value = update.plain_text;
                     document.body.appendChild(input);
@@ -254,6 +282,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.body.removeChild(input);
                     showToast("Copied card text!", "success");
                 }
+            });
+
+            // Quick Tweet Card Button
+            const shareBtn = card.querySelector('.card-share-btn');
+            shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectUpdate(update);
+                loadIntoComposer();
+                shareOnTwitter();
             });
 
             card.addEventListener('click', () => selectUpdate(update));
@@ -281,7 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update details elements
         const typeClass = update.type.toLowerCase();
         elements.detailBadge.className = `badge ${['feature', 'change', 'deprecation'].includes(typeClass) ? 'badge-' + (typeClass === 'feature' ? 'success' : typeClass === 'change' ? 'info' : 'danger') : 'badge-general'}`;
-        elements.detailBadge.textContent = update.type;
+        
+        const icon = getTypeIcon(update.type);
+        elements.detailBadge.textContent = `${icon} ${update.type}`;
         elements.detailBadge.style.backgroundColor = typeClass === 'feature' ? 'var(--color-success-light)' : typeClass === 'change' ? 'var(--color-info-light)' : typeClass === 'deprecation' ? 'var(--color-danger-light)' : 'rgba(255, 255, 255, 0.08)';
         elements.detailBadge.style.color = typeClass === 'feature' ? 'var(--color-success)' : typeClass === 'change' ? 'var(--color-info)' : typeClass === 'deprecation' ? 'var(--color-danger)' : 'var(--text-secondary)';
         

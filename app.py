@@ -102,6 +102,7 @@ def index():
 
 @app.route('/api/feed')
 def get_feed():
+    from datetime import datetime
     xml_data, is_cached = fetch_feed_xml()
     if xml_data is None:
         return jsonify({
@@ -110,10 +111,16 @@ def get_feed():
             'updates': []
         }), 500
         
+    cache_time_str = None
+    if os.path.exists(CACHE_FILE):
+        mtime = os.path.getmtime(CACHE_FILE)
+        cache_time_str = datetime.fromtimestamp(mtime).strftime("%b %d, %Y %I:%M %p")
+
     updates = parse_feed_to_updates(xml_data)
     return jsonify({
         'success': True,
         'cached': is_cached,
+        'cache_time': cache_time_str,
         'updates': updates
     })
 

@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnRefresh: document.getElementById('btn-refresh'),
         refreshIcon: document.getElementById('refresh-icon'),
         connectionBadge: document.getElementById('connection-badge'),
+        btnThemeToggle: document.getElementById('btn-theme-toggle'),
+        themeIconSun: document.getElementById('theme-icon-sun'),
+        themeIconMoon: document.getElementById('theme-icon-moon'),
+        btnExportCSV: document.getElementById('btn-export-csv'),
         inputSearch: document.getElementById('input-search'),
         btnClearSearch: document.getElementById('btn-clear-search'),
         pillsContainer: document.getElementById('filter-pills-container'),
@@ -220,11 +224,38 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <div class="note-card-header">
                     <span class="note-card-date">${update.date}</span>
-                    <span class="type-badge ${['feature', 'change', 'deprecation'].includes(typeClass) ? typeClass : 'general'}">${update.type}</span>
+                    <div class="note-card-actions">
+                        <button class="card-copy-btn" title="Copy update text">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                        <span class="type-badge ${['feature', 'change', 'deprecation'].includes(typeClass) ? typeClass : 'general'}">${update.type}</span>
+                    </div>
                 </div>
                 <div class="note-card-excerpt">${excerpt}</div>
             `;
             
+            // Event listener for copying card content
+            const copyBtn = card.querySelector('.card-copy-btn');
+            copyBtn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent selecting the card
+                try {
+                    await navigator.clipboard.writeText(update.plain_text);
+                    showToast("Copied card text!", "success");
+                } catch (err) {
+                    // Fallback
+                    const input = document.createElement('textarea');
+                    input.value = update.plain_text;
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(input);
+                    showToast("Copied card text!", "success");
+                }
+            });
+
             card.addEventListener('click', () => selectUpdate(update));
             elements.feedContainer.appendChild(card);
         });
@@ -373,9 +404,78 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast("Redirecting to X...", "success");
     }
 
+    // Theme Toggle Function
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            elements.themeIconSun.classList.add('hidden');
+            elements.themeIconMoon.classList.remove('hidden');
+        } else {
+            document.body.classList.remove('light-theme');
+            elements.themeIconSun.classList.remove('hidden');
+            elements.themeIconMoon.classList.add('hidden');
+        }
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-theme');
+        if (isLight) {
+            localStorage.setItem('theme', 'light');
+            elements.themeIconSun.classList.add('hidden');
+            elements.themeIconMoon.classList.remove('hidden');
+            showToast("Switched to Light Mode", "info");
+        } else {
+            localStorage.setItem('theme', 'dark');
+            elements.themeIconSun.classList.remove('hidden');
+            elements.themeIconMoon.classList.add('hidden');
+            showToast("Switched to Dark Mode", "info");
+        }
+    }
+
+    // Export to CSV Function
+    function exportToCSV() {
+        if (state.filteredUpdates.length === 0) {
+            showToast("No updates available to export.", "error");
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        
+        // CSV Headers
+        csvContent += '"Date","Type","Content"\r\n';
+        
+        // CSV Rows
+        state.filteredUpdates.forEach(update => {
+            // Escape double quotes by doubling them
+            const escapedContent = update.plain_text.replace(/"/g, '""');
+            const escapedType = update.type.replace(/"/g, '""');
+            const escapedDate = update.date.replace(/"/g, '""');
+            
+            csvContent += `"${escapedDate}","${escapedType}","${escapedContent}"\r\n`;
+        });
+        
+        // Trigger download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `bigquery_release_notes_${state.activeFilter}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast(`Successfully exported ${state.filteredUpdates.length} updates!`, "success");
+    }
+
     // Event Listeners
     elements.btnRefresh.addEventListener('click', loadFeed);
     
+    // Theme Toggle
+    elements.btnThemeToggle.addEventListener('click', toggleTheme);
+
+    // CSV Export
+    elements.btnExportCSV.addEventListener('click', exportToCSV);
+
     // Search event
     elements.inputSearch.addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
@@ -437,5 +537,6 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.btnTweet.addEventListener('click', shareOnTwitter);
 
     // Initial load
+    initTheme();
     loadFeed();
 });

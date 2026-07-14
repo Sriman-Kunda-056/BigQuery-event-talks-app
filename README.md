@@ -8,7 +8,7 @@ BigQuery Release Pulse is a modern, light, and responsive web application that a
 ![Feed modes](https://img.shields.io/badge/feed_modes-live_%2B_cache-2ea44f)
 ![Tests](https://img.shields.io/badge/automated_tests-0-f59e0b)
 
-## At a glance
+## Evidence at a glance
 
 | Verified behavior | Value |
 | --- | ---: |
@@ -18,7 +18,12 @@ BigQuery Release Pulse is a modern, light, and responsive web application that a
 | Upstream timeout | **10 seconds** |
 | External Python dependencies | **1** |
 
-## Architecture preview
+## Preview
+
+No reviewed browser capture is tracked yet. The GitHub-rendered data flow below
+shows the implemented live-feed and offline-cache behavior.
+
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -36,7 +41,7 @@ flowchart LR
 
 ---
 
-## 🌟 Key Features
+## What it does
 
 * **Live Feed & Offline Resilience**: Fetches the official Google Cloud BigQuery RSS Feed in real-time. Automatically saves cache files locally, allowing the system to operate offline seamlessly.
 * **Granular Segmentation**: Parses the feed HTML to separate entries by update types (`Feature`, `Change`, `Deprecation`, `General`) so they can be read, searched, or shared individually.
@@ -50,7 +55,7 @@ flowchart LR
 
 ---
 
-## 📂 Project Structure
+## Repository layout
 
 ```
 BigQuery-event-talks-app/
@@ -66,7 +71,7 @@ BigQuery-event-talks-app/
 
 ---
 
-## 🚀 Getting Started
+## Quick start
 
 ### Prerequisites
 
@@ -100,3 +105,39 @@ BigQuery-event-talks-app/
 
 * **Backend**: Python, Flask, `xml.etree.ElementTree` (Standard library XML parser)
 * **Frontend**: HTML5 (Semantic structure), Vanilla Javascript (ES6), Vanilla CSS3 (Custom design system with CSS grid & variables)
+
+## Tests and validation
+
+No automated test suite is tracked. A local presentation check should cover:
+
+1. Start `python app.py` and open the dashboard.
+2. Confirm `/api/feed` returns categorized entries.
+3. Search and filter the rendered feed.
+4. Confirm the composer enforces its 280-character limit.
+5. Temporarily disconnect the upstream feed and verify the cache fallback.
+
+## Limitations
+
+- Parsing depends on the structure and availability of Google's upstream Atom
+  feed and may require maintenance when that structure changes.
+- The cache is local to one process and has no shared invalidation strategy.
+- The development entry point enables Flask debug mode.
+- There is no authentication, monitoring, rate limiting, or automated test
+  coverage for a production deployment.
+
+## Numbered commit history
+
+1. `Initial` - import the Flask feed dashboard and composer.
+2. `01` - add verified metrics, architecture, and offline-cache documentation.
+3. `02` - standardize the evidence-first GitHub README format.
+
+## Suggested GitHub topics
+
+`bigquery` `google-cloud` `flask` `python` `atom-feed`
+`release-notes` `javascript` `data-engineering`
+
+## License and attribution
+
+No repository-wide license file is included. BigQuery and Google Cloud names are
+used only to describe the official public release-note feed consumed by the app;
+the project is not an official Google product.

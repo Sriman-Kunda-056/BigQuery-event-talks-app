@@ -2,6 +2,38 @@
 
 BigQuery Release Pulse is a modern, light, and responsive web application that aggregates, categorizes, and searches the Google Cloud BigQuery Release Notes feed. It includes an interactive X (Twitter) Post Composer that features a real-time post preview, character limit validation, and a smart-shorten template.
 
+![Routes](https://img.shields.io/badge/Flask_routes-2-2563eb)
+![Categories](https://img.shields.io/badge/update_categories-4-7c3aed)
+![Composer](https://img.shields.io/badge/post_limit-280_chars-0ea5e9)
+![Feed modes](https://img.shields.io/badge/feed_modes-live_%2B_cache-2ea44f)
+![Tests](https://img.shields.io/badge/automated_tests-0-f59e0b)
+
+## At a glance
+
+| Verified behavior | Value |
+| --- | ---: |
+| Flask routes | **2** |
+| Release-note categories | **4** |
+| X composer limit | **280 characters** |
+| Upstream timeout | **10 seconds** |
+| External Python dependencies | **1** |
+
+## Architecture preview
+
+```mermaid
+flowchart LR
+    F["Official BigQuery Atom feed"] --> P["Flask fetch + XML parser"]
+    P --> C["Local cache fallback"]
+    P --> API["/api/feed JSON"]
+    C --> API
+    API --> UI["Searchable release dashboard"]
+    UI --> X["280-character X composer"]
+```
+
+> **Prototype status:** the feed parser and UI currently have no automated
+> tests. The direct development entry point also enables Flask debug mode, so
+> use a production WSGI server for deployment.
+
 ---
 
 ## 🌟 Key Features
@@ -21,7 +53,7 @@ BigQuery Release Pulse is a modern, light, and responsive web application that a
 ## 📂 Project Structure
 
 ```
-agy-cli-projects/
+BigQuery-event-talks-app/
 ├── static/
 │   ├── app.js          # Client state, fetching, search, filter, composer logic
 │   └── style.css       # Layout grids, glassmorphism design system, shimmers
@@ -45,8 +77,8 @@ agy-cli-projects/
 
 1. Clone this repository and navigate to the project directory:
    ```bash
-   git clone https://github.com/Sriman-Kunda-056/GooglePatch-event-talks-app.git
-   cd GooglePatch-event-talks-app
+   git clone https://github.com/Sriman-Kunda-056/BigQuery-event-talks-app.git
+   cd BigQuery-event-talks-app
    ```
 
 2. Install dependencies:
